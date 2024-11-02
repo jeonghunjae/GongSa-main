@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>자재 입력</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        .form-section {
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        input[type="date"], input[type="number"], select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        input[type="submit"]:hover {
+            background-color: #003d73;
+        }
+        .material-row {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ccc;
+            position: relative;
+        }
+        .material-unit {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button.delete-btn {
+            background-color: #e74c3c;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+        button.delete-btn:hover {
+            background-color: #c0392b;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .single-button {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        let materialList = <%- JSON.stringify(materials) %>;
+        let materialSpecifications = <%- JSON.stringify(materialSpecifications) %>;
+    
+        function addMaterialRow() {
+            const materialRow = document.createElement('div');
+            materialRow.classList.add('material-row');
+    
+            const materialSelect = document.createElement('select');
+            materialSelect.name = 'materialNames[]';
+            materialSelect.required = true;
+    
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = '자재를 선택하세요';
+            materialSelect.appendChild(defaultOption);
+    
+            materialList.forEach(material => {
+                const option = document.createElement('option');
+                option.value = material.materialName;
+                option.text = `${material.materialName}`;
+                materialSelect.appendChild(option);
+            });
+    
+            const specSelect = document.createElement('select');
+            specSelect.name = 'materialIds[]';  // 자재 ID로 전송
+            specSelect.required = true;
+    
+            const specDefaultOption = document.createElement('option');
+            specDefaultOption.value = '';
+            specDefaultOption.text = '규격을 선택하세요';
+            specSelect.appendChild(specDefaultOption);
+    
+            const unitLabel = document.createElement('div');
+            unitLabel.classList.add('material-unit');
+            unitLabel.textContent = ''; // 처음에는 빈 값
+    
+            materialSelect.addEventListener('change', function () {
+                const selectedMaterialName = materialSelect.value;
+                const specs = materialSpecifications[selectedMaterialName];
+    
+                // 규격 선택지 업데이트
+                while (specSelect.options.length > 1) {
+                    specSelect.remove(1);
+                }
+    
+                specs.forEach(spec => {
+                    const option = document.createElement('option');
+                    option.value = spec.id; // 자재 ID로 변경
+                    option.text = spec.specification;
+                    specSelect.appendChild(option);
+                });
+    
+                // 해당 자재의 단위 업데이트
+                const selectedMaterial = materialList.find(mat => mat.materialName === selectedMaterialName);
+                if (selectedMaterial && selectedMaterial.unit) {
+                    unitLabel.textContent = `단위: ${selectedMaterial.unit}`;
+                } else {
+                    unitLabel.textContent = '단위 정보를 찾을 수 없습니다.';
+                }
+            });
+    
+            const quantityInput = document.createElement('input');
+            quantityInput.type = 'number';
+            quantityInput.name = 'quantities[]';
+            quantityInput.placeholder = '수량';
+            quantityInput.required = true;
+            quantityInput.step = '0.001';  // 소수점 입력 가능하게 설정
+    
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = '삭제하기';
+            deleteButton.type = 'button';
+            deleteButton.classList.add('delete-btn');
+            deleteButton.onclick = function () {
+                document.getElementById('material-list').removeChild(materialRow);
+            };
+    
+            materialRow.appendChild(materialSelect);
+            materialRow.appendChild(specSelect);
+            materialRow.appendChild(quantityInput);
+            materialRow.appendChild(unitLabel);  // 단위 표시 추가
+            materialRow.appendChild(deleteButton);  // 삭제 버튼 아래로 이동
+    
+            document.getElementById('material-list').appendChild(materialRow);
+        }
+    
+        window.onload = function() {
+            document.getElementById('date').value = new Date().toISOString().substr(0, 10);
+            addMaterialRow();
+        };
+    </script>
+    
+</head>
+<body>
+    <h1>자재 입력</h1>
+    <form action="/input-materials" method="post">
+        <div class="form-section">
+            <label for="date">날짜 선택:</label>
+            <input type="date" id="date" name="date" required>
+        </div>
+
+        <div id="material-list"></div>
+
+        <div class="single-button">
+            <button type="button" onclick="addMaterialRow()">자재 추가</button>
+        </div>
+
+        <input type="submit" value="제출하기" class="single-button">
+    </form>
+
+    
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>공사일보 입력</title>
+    <!-- 뷰포트 메타 태그 추가로 모바일 대응 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 기존 스타일 수정 및 반응형 디자인 적용 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin: 0; /* 모바일에서 여백 제거 */
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .title-background {
+            position: relative;
+            z-index: 1;
+        }
+
+        .title-background::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            background-image: url('https://www.prugio.com/asset/images/brand/bi_logo.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            z-index: -1;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px; /* 패딩 조정 */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        .form-section {
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"], input[type="date"], input[type="number"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px; /* 폰트 크기 조정 */
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"], button {
+            padding: 12px;
+            background-color: #005a9e; /* 기본 색상 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover, button:hover {
+            background-color: #003d73; /* 호버 시 색상 */
+        }
+
+        .company-list {
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .company-item {
+            margin-bottom: 10px;
+        }
+
+        .company-details {
+            display: none;
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+
+        .equipment-section {
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .equipment-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .equipment-row select, .equipment-row input[type="number"] {
+            flex: 1 1 30%;
+            margin-right: 10px;
+            min-width: 150px;
+        }
+
+        .equipment-row button {
+            flex: 0 0 auto;
+            padding: 8px 12px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .equipment-row button:hover {
+            background-color: #c0392b;
+        }
+        
+        /* 맨 아래로 이동 버튼 스타일 */
+        #scrollToBottomBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px; /* 화면 크기와 상관없이 우측 하단 고정 */
+            padding: 10px 15px; /* 버튼 크기 축소 */
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 50%; /* 버튼을 둥글게 */
+            cursor: pointer;
+            font-size: 14px; /* 폰트 크기 축소 */
+            z-index: 1000;
+            width: 50px;  /* 버튼 너비 */
+            height: 50px; /* 버튼 높이 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #scrollToBottomBtn:hover {
+            background-color: #003d73;
+        }
+
+        /* 검색창 스타일 */
+        .search-bar {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+
+
+        /* 반응형 디자인 적용 */
+        @media screen and (max-width: 600px) {
+            form {
+                padding: 15px;
+            }
+
+            .form-section {
+                padding: 10px;
+            }
+
+            input[type="text"], input[type="date"], input[type="number"], textarea, select {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            input[type="submit"], button {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            label {
+                font-size: 14px;
+            }
+
+            .equipment-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .equipment-row select, .equipment-row input[type="number"], .equipment-row button {
+                flex: 1 1 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            
+        }
+    </style>
+    <script>
+        // 체크된 회사에 대해 장비 사용 여부를 토글
+        function toggleCompanyDetails(companyId) {
+            var checkbox = document.getElementById('company-checkbox-' + companyId);
+            var detailsDiv = document.getElementById('company-details-' + companyId);
+            var equipmentSection = document.getElementById('equipment-section-' + companyId);
+            
+            if (checkbox.checked) {
+                detailsDiv.style.display = 'block';
+            } else {
+                detailsDiv.style.display = 'none';
+                equipmentSection.style.display = 'none';
+            }
+        }
+        // 검색 기능 구현
+        function filterCompanies() {
+            const searchInput = document.getElementById('search').value.toLowerCase();
+            const companyItems = document.querySelectorAll('.company-item');
+
+            companyItems.forEach(item => {
+                const companyName = item.querySelector('label').textContent.toLowerCase();
+                if (companyName.includes(searchInput)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 장비 사용 여부를 토글하여 장비 섹션 표시/숨기기
+        function toggleEquipmentSection(companyId) {
+            var equipmentSection = document.getElementById('equipment-section-' + companyId);
+            var equipmentUsed = document.querySelector('input[name="equipmentUsed_' + companyId + '"]:checked').value;
+            
+            if (equipmentUsed === 'yes') {
+            equipmentSection.style.display = 'block';
+
+                // 장비 있음 선택 시 바로 장비 선택 칸 추가
+                if (document.getElementById('equipment-list-' + companyId).childElementCount === 0) {
+                    addEquipmentRow(companyId);
+                }
+            } else {
+                equipmentSection.style.display = 'none';
+                document.getElementById('equipment-list-' + companyId).innerHTML = '';  // 장비 리스트 초기화
+            }
+        }
+
+        var equipments = <%- JSON.stringify(equipments) %>;
+        var equipmentListDiv;
+
+        // 장비 선택 행 추가
+        function addEquipmentRow(companyId) {
+            var equipmentListDiv = document.getElementById('equipment-list-' + companyId);
+
+            var equipmentRow = document.createElement('div');
+            equipmentRow.className = 'equipment-row';
+
+            // 장비 선택 셀렉트 박스
+            var equipmentSelect = document.createElement('select');
+            equipmentSelect.name = 'equipmentNames_' + companyId + '[]';
+            equipmentSelect.required = true;
+
+            var defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = '장비를 선택하세요';
+            equipmentSelect.appendChild(defaultOption);
+
+            var equipmentNames = [...new Set(equipments.map(e => e.equipmentName))];
+            equipmentNames.forEach(function(name) {
+                var option = document.createElement('option');
+                option.value = name;
+                option.text = name;
+                equipmentSelect.appendChild(option);
+            });
+
+            // 규격 선택 셀렉트 박스
+            var specificationSelect = document.createElement('select');
+            specificationSelect.name = 'equipmentSpecifications_' + companyId + '[]';
+            specificationSelect.required = true;
+
+            var defaultSpecOption = document.createElement('option');
+            defaultSpecOption.value = '';
+            defaultSpecOption.text = '규격을 선택하세요';
+            specificationSelect.appendChild(defaultSpecOption);
+
+            equipmentSelect.onchange = function() {
+                var selectedName = this.value;
+                var specs = equipments.filter(e => e.equipmentName === selectedName).map(e => e.specification);
+
+                // 기존 규격 옵션 제거
+                while (specificationSelect.options.length > 1) {
+                    specificationSelect.remove(1);
+                }
+
+                // 새로운 규격 옵션 추가
+                specs.forEach(function(spec) {
+                    var option = document.createElement('option');
+                    option.value = spec;
+                    option.text = spec;
+                    specificationSelect.appendChild(option);
+                });
+            };
+
+            // 수량 입력 필드
+            var countInput = document.createElement('input');
+            countInput.type = 'number';
+            countInput.name = 'equipmentCounts_' + companyId + '[]';
+            countInput.placeholder = '수량';
+            countInput.required = true;
+
+            // 삭제 버튼
+            var removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.textContent = '삭제';
+            removeButton.onclick = function() {
+                equipmentListDiv.removeChild(equipmentRow);
+            };
+
+            // 행에 요소 추가
+            equipmentRow.appendChild(equipmentSelect);
+            equipmentRow.appendChild(specificationSelect);
+            equipmentRow.appendChild(countInput);
+            equipmentRow.appendChild(removeButton);
+
+            // 장비 리스트에 행 추가
+            equipmentListDiv.appendChild(equipmentRow);
+        }
+
+        function validateForm() {
+            var isValid = true;
+            var checkedCompanies = document.querySelectorAll('input[name="companyIds[]"]:checked');
+
+            if (checkedCompanies.length === 0) {
+                alert('최소 한 개의 회사를 선택해야 합니다.');
+                return false;
+            }
+
+            checkedCompanies.forEach(function(checkbox) {
+                var companyId = checkbox.value;
+                var personnelCount = document.getElementById('personnel_count-' + companyId).value.trim();
+                var description = document.getElementById('description-' + companyId).value.trim();
+
+                if (personnelCount === '' || description === '') {
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                alert('선택한 모든 회사의 인원과 작업 내용을 입력해 주세요.');
+                return false;
+            }
+
+            // 장비 사용 여부 확인
+            var equipmentUsed = document.querySelector('input[name="equipmentUsed"]:checked').value;
+            if (equipmentUsed === 'yes') {
+                var equipmentNames = document.querySelectorAll('select[name="equipmentNames[]"]');
+                var equipmentSpecifications = document.querySelectorAll('select[name="equipmentSpecifications[]"]');
+                var equipmentCounts = document.querySelectorAll('input[name="equipmentCounts[]"]');
+                if (equipmentNames.length === 0) {
+                    alert('장비를 추가해 주세요.');
+                    return false;
+                }
+                for (var i = 0; i < equipmentNames.length; i++) {
+                    if (equipmentNames[i].value === '' || equipmentSpecifications[i].value === '' || equipmentCounts[i].value.trim() === '') {
+                        alert('모든 장비의 종류, 규격, 수량을 입력해 주세요.');
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        window.onload = function() {
+            const today = new Date().toISOString().substr(0, 10);
+            document.getElementById('date').value = today;
+            equipmentListDiv = document.getElementById('equipment-list');
+        };
+
+
+        // 페이지의 맨 아래로 스크롤하는 함수
+        function scrollToBottom() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        // 스크롤 위치에 따라 버튼 표시/숨기기
+        window.onscroll = function() {
+            var scrollToBottomBtn = document.getElementById('scrollToBottomBtn');
+            if (window.pageYOffset > 300) { // 스크롤이 300px 이상일 때 버튼 표시
+                scrollToBottomBtn.classList.add('show');
+            } else {
+                scrollToBottomBtn.classList.remove('show');
+            }
+        };
+
+        window.onload = function() {
+            equipmentListDiv = document.getElementById('equipment-list');
+        };
+        
+
+
+
+    </script>
+</head>
+<body>
+    <div class="title-background">
+        <h1>공사일보 입력</h1>
+    </div>
+
+    <!-- 폼에 onsubmit 이벤트 추가 -->
+    <form action="/create" method="post" onsubmit="return validateForm();">
+        <div class="form-section">
+            <label for="date">일하는 날짜:</label>
+            <input type="date" id="date" name="date" value="<%= today %>" required>
+        </div>
+
+        <!-- 검색 입력 필드 추가 -->
+        <input type="text" id="search" class="search-bar" oninput="filterCompanies()" placeholder="회사명 또는 공종명 검색">
+
+        <div class="form-section company-list">
+            <h3>회사 선택 :</h3>
+            <% companies.forEach(function(company) { %>
+                <div class="company-item">
+                    <label>
+                        <input type="checkbox" id="company-checkbox-<%= company.id %>" name="companyIds[]" value="<%= company.id %>" onchange="toggleCompanyDetails(<%= company.id %>)">
+                        <%= company.company %> (<%= company.trade %>)
+                    </label>
+                    <div id="company-details-<%= company.id %>" class="company-details">
+                        <label for="personnel_count-<%= company.id %>">인원:</label>
+                        <input type="number" id="personnel_count-<%= company.id %>" name="personnel_count_<%= company.id %>" placeholder="숫자만 입력해주세요">
+
+                        <label for="description-<%= company.id %>">작업 내용:</label>
+                        <textarea id="description-<%= company.id %>" name="description_<%= company.id %>" rows="2" placeholder="작업내용을 입력하세요"></textarea>
+                    
+                        <!-- 장비 사용 여부 -->
+                    <div class="form-section equipment-section">
+                        <h3>장비 사용 여부 :</h3>
+                        <label>
+                            <input type="radio" name="equipmentUsed_<%= company.id %>" value="no" checked onchange="toggleEquipmentSection(<%= company.id %>)"> 없음
+                        </label>
+                        <label>
+                            <input type="radio" name="equipmentUsed_<%= company.id %>" value="yes" onchange="toggleEquipmentSection(<%= company.id %>)"> 있음
+                        </label>
+                        <div id="equipment-section-<%= company.id %>" style="display: none;">
+                            <div id="equipment-list-<%= company.id %>">
+                                <!-- 장비 선택 행들이 추가될 위치 -->
+                            </div>
+                            <button type="button" onclick="addEquipmentRow(<%= company.id %>)">장비 추가</button>
+                        </div>
+                    </div>
+                    
+                    
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+
+
+        <input type="submit" value="제출하기">
+    </form>
+
+    <!-- 맨 아래로 이동 버튼 -->
+    <button id="scrollToBottomBtn" onclick="scrollToBottom()">⬇</button>
+</body>
+</html>

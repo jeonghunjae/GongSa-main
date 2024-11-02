@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>공사일보 종합 페이지</title>
+  <style>
+    /* 스타일 정의 */
+    body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: calc(183px * 15);
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid black; /* 표의 모든 셀에 border 추가 */
+            width: 183;
+            height: 43px;
+            text-align: center;
+            font-size: 25px;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h2 {
+            display: flex;
+            justify-content: center; /* 가로 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            text-align: center;
+            width: calc(183px * 15);
+            height: 170px;
+            border: 1px solid black; /* 제목에 border 추가 */
+            padding: 0;
+            margin: 0;
+            font-size: 60px;
+            box-sizing: border-box; /* padding과 border를 폭에 포함 */
+        }
+
+        /* 날짜 선택 스타일을 일반 텍스트처럼 */
+        input[type="date"] {
+            font-size: 25px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+        }
+  </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th colspan="11" style="padding-top: 20px; border-bottom: none;text-align: center; padding-left: 20px;">  </th> 
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;">작성자</th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;">팀 장</th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;">소 장</th>
+        </tr>
+        <tr>
+            <th colspan="11" style="padding-bottom: 50px; border-top: none;text-align: center; padding-left: 600px;">
+                <span style="font-size: 60px;">공&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;사&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;일&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;보</span>
+            </th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;"></th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;"></th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;"></th>
+        </tr>
+    </table>
+    
+    <table>
+        <!-- 공사명, 날짜, 날씨 -->
+        <tr>
+            <td colspan="12">공사명: <%= siteName %></td>
+            <td colspan="3">
+                날짜:
+                <input type="date" id="selectedDate" value="<%= selectedDate %>" onchange="updateDate()">
+
+            </td> 
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid black;">
+                날씨: 
+                <input 
+                    type="text" 
+                    id="weatherInput" 
+                    value="<%= weather %>" 
+                    onblur="autoUpdateWeather()" 
+                    style="border: none; width: 150px; font-size: 25px;" 
+                />
+            </td>
+            <td colspan="2" style="border-right: none;">최저 기온: <%= lowTemp %></td>
+            <td colspan="11" style="text-align:left; padding-left: 20px; border-left: none;">최고 기온: <%= highTemp %></td>
+        </tr>
+
+        <!-- 자재, 장비 및 업체 현황 헤더 -->
+        <tr>
+            <th colspan="5" style="background-color: #cececee8;">전일 작업 현황</th>
+            <th colspan="5" style="background-color: #cececee8;">금일 작업 현황</th>
+            <th colspan="5" style="background-color: #cececee8;">업체 및 출력 현황</th>
+        </tr>
+
+          <!-- 업체명, 공종, 전일, 금일, 누계 칸 추가 -->
+          <tr>
+            <th colspan="5" style="background-color: #f2f2f2;"></th>
+            <th colspan="5" style="background-color: #f2f2f2;"></th>
+            <th style="background-color: #f2f2f2;">업체명</th>
+            <th style="background-color: #f2f2f2;">공종</th>
+            <th style="background-color: #f2f2f2;">전일</th>
+            <th style="background-color: #f2f2f2;">금일</th>
+            <th style="background-color: #f2f2f2;">누계</th>
+          </tr>
+
+        <% const maxRows = Math.max(previousWorkDetails.length, workDetails.length, groupedWorkDetails.length); %>
+        <% for (let i = 0; i < maxRows; i++) { %>
+        <tr>
+          <!-- 전일 작업 현황 -->
+          <td colspan="5">
+            <% if (i < previousWorkDetails.length) { %>
+              <div>
+                <span>[<%= previousWorkDetails[i].companyDetails.trade %>]</span> (<%= previousWorkDetails[i].companyDetails.company %>)
+                <textarea oninput="autoResize(this)" onblur="updateWorkDescription('<%= previousWorkDetails[i].id %>', this.value)" style="width: 100%; resize: none;"><%= previousWorkDetails[i].description || '-' %></textarea>
+              </div>
+            <% } else { %>
+              &nbsp;
+            <% } %>
+          </td>
+
+          <!-- 금일 작업 현황 -->
+          <td colspan="5">
+            <% if (i < workDetails.length) { %>
+              <div>
+                <span>[<%= workDetails[i].companyDetails.trade %>]</span> (<%= workDetails[i].companyDetails.company %>)
+                <textarea oninput="autoResize(this)" onblur="updateWorkDescription('<%= workDetails[i].id %>', this.value)" style="width: 100%; resize: none;"><%= workDetails[i].description || '-' %></textarea>
+              </div>
+            <% } else { %>
+              &nbsp;
+            <% } %>
+          </td>
+          
+
+          <!-- 업체 및 출력 현황 -->
+          <td><%= i < groupedWorkDetails.length ? groupedWorkDetails[i].companyDetails.company : '-' %></td>
+          <td><%= i < groupedWorkDetails.length ? groupedWorkDetails[i].companyDetails.trade : '-' %></td>
+          <td><%= i < workDetails.length ? workDetails[i].previousPersonnel || '-' : '-' %></td>
+            <td><%= i < workDetails.length ? workDetails[i].calculatePersonnelForSelectedDate || '-' : '-' %></td>
+            <td><%= i < workDetails.length ? workDetails[i].totalPersonnel ? workDetails[i].totalPersonnel.toLocaleString() : '-' : '-' %></td>
+        </tr>
+        <% } %>
+
+    </table>
+
+    <!-- 자재 현황 및 장비 현황 -->
+    <table>
+        <tr>
+            <th>자재 현황</th>
+            <th>장비 현황</th>
+        </tr>
+        <tr>
+          <td>
+            <% groupedMaterials.forEach(function(material) { %>
+              <p><%= material.materialDetails.materialName %> (<%= material.materialDetails.specification %>): 
+                 입고 <%= material.inQuantity %>, 출고 <%= material.outQuantity %>
+              </p>
+            <% }); %>
+          </td>
+          
+          <td>
+            <% groupedEquipments.forEach(function(equipment) { %>
+              <p>업체: <%= equipment.equipmentDetails.workDetail.companyDetails.company %><br>
+                 장비명: <%= equipment.equipmentDetails.equipment.equipmentName %> (<%= equipment.equipmentDetails.equipment.specification %>)<br>
+                 수량: <%= equipment.equipmentCount %>대
+              </p>
+            <% }); %>
+          </td>
+          
+        </tr>
+    </table>
+
+    <script>
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+
+        function updateWorkDescription(id, description) {
+            fetch(`/update-work-description/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description })
+            }).then(response => {
+                if (!response.ok) {
+                    alert('업데이트 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        window.onload = function() {
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(function(textarea) {
+                autoResize(textarea);
+            });
+        };
+    </script>
+</body>
+</html>

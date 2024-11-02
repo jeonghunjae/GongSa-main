@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>공사일보 - 인력 현황</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: calc(183px * 15);
+            table-layout: fixed;
+        }
+        th, td {
+            width: 183;
+            height: 43px;
+            text-align: center;
+            font-size: 32px;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h2 {
+            display: flex;
+            justify-content: center; /* 가로 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            text-align: center;
+            width: calc(183px * 15);
+            height: 170px;
+            border: 1px solid black; /* 제목에 border 추가 */
+            padding: 0;
+            margin: 0;
+            font-size: 60px;
+            box-sizing: border-box; /* padding과 border를 폭에 포함 */
+        }
+
+        /* 날짜 선택 스타일을 일반 텍스트처럼 */
+        input[type="date"] {
+            font-size: 25px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+        }
+
+        /* 작업현황 스타일 */
+        .work-item {
+            text-align: left; /* 좌측 정렬 */
+            padding-left: 10px; /* 약간의 여백 추가 */
+            line-height: 43px; /* 각 줄마다 높이 43px 할당 */
+        }
+
+        /* 공종을 빨간색으로 스타일링 */
+        .trade-highlight {
+            color: red;
+        }
+
+        table {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th colspan="15" style="padding-top: 20px; border-bottom: none;text-align: center;">  </th> 
+        </tr>
+        <tr>
+            <th colspan="15" style="padding-bottom: 50px; border-top: none;text-align: center;">
+                <span style="font-size: 60px;">공&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;사&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;일&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;보</span>
+            </th>
+        </tr>
+    </table>
+    <table>
+        <!-- 공사명, 날짜, 날씨 -->
+        <tr>
+            <td colspan="12" style="border: 1px solid black;">공사명: <%= siteName %></td>
+            <td colspan="3" style="border: 1px solid black;">
+                날짜:
+                <input type="date" id="selectedDate" value="<%= workDate %>" onchange="updateDate()">
+            </td> 
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid black;">
+                날씨: 
+                <input 
+                    type="text" 
+                    id="weatherInput" 
+                    value="<%= weather %>" 
+                    onblur="autoUpdateWeather()" 
+                    style="border: none; width: 150px; font-size: 30px;" 
+                />
+            </td>
+    
+            <td colspan="2" style="border-right: none;">최저 기온: <%= lowTemp %></td>
+            <td colspan="11" style="text-align:left; padding-left: 20px; border-left: none;">최고 기온: <%= highTemp %></td>
+        </tr>
+
+        <!-- 자재, 장비 및 업체 현황 헤더 -->
+        <tr>
+            <th colspan="7" style="background-color: #cececee8; border: 1px solid black;">전 일 작 업 현 황</th>
+            <th colspan="8" style="background-color: #cececee8; border: 1px solid black;">금 일 작 업 현 황</th>
+        </tr>
+
+        <!-- 전일과 금일 작업 현황 데이터 -->
+        <% const filteredPreviousWorkDetails = previousWorkDetails.filter(item => item.companyDetails.company !== '대우건설'); %>
+        <% const filteredWorkDetails = workDetails.filter(item => item.companyDetails.company !== '대우건설'); %>
+
+        <!-- 전일 작업 현황과 금일 작업 현황 -->
+        <% for (let i = 0; i < maxRows; i++) { %>
+            <tr>
+                <!-- 전일 작업 현황 -->
+                <td colspan="7" style="border-right: 1px solid black;">
+                    <% if (i < filteredPreviousWorkDetails.length) { %>
+                        <div class="work-item">
+                            <span class="trade-highlight">[<%= filteredPreviousWorkDetails[i].companyDetails.trade %>]</span> (<%= filteredPreviousWorkDetails[i].companyDetails.company %>)
+                            <br>
+                            <textarea
+                                rows="1"
+                                oninput="autoResize(this)"
+                                onblur="updateWorkDescription(<%= filteredPreviousWorkDetails[i].id %>, this.value)"
+                                style="width: 100%; font-size: 30px; resize: none; overflow: hidden; border: none; box-sizing: border-box; white-space: pre-wrap;"
+                            ><%- filteredPreviousWorkDetails[i].description || '-' %></textarea>
+                        </div>
+                    <% } else { %>
+                        &nbsp; <!-- 빈칸 -->
+                    <% } %>
+                </td>
+
+                <!-- 금일 작업 현황 -->
+                <td colspan="8" style="border-right: 1px solid black;">
+                    <% if (i < filteredWorkDetails.length) { %>
+                        <div class="work-item">
+                            <span class="trade-highlight">[<%= filteredWorkDetails[i].companyDetails.trade %>]</span> (<%= filteredWorkDetails[i].companyDetails.company %>)
+                            <br>
+                            <textarea
+                                rows="1"
+                                oninput="autoResize(this)"
+                                onblur="updateWorkDescription(<%= filteredWorkDetails[i].id %>, this.value)"
+                                style="width: 100%; font-size: 30px; resize: none; overflow: hidden; border: none; box-sizing: border-box; white-space: pre-wrap;"
+                            ><%- filteredWorkDetails[i].description || '-' %></textarea>
+                        </div>
+                    <% } else { %>
+                        &nbsp; <!-- 빈칸 -->
+                    <% } %>
+                </td>
+            </tr>
+        <% } %>
+
+
+
+        <!-- 빈칸 채우기 -->
+        <% const emptyRows = 0; %> <!-- 빈칸 줄의 수를 조정할 수 있는 변수 -->
+        <% for (let i = 0; i < emptyRows; i++) { %>
+        <tr> <!-- 수평선 없는 빈칸 -->
+            <td colspan="7" style="height: 43px; border-right: 1px solid black;">&nbsp;</td>
+            <td colspan="8" style="height: 43px;">&nbsp;</td>
+        </tr>
+        <% } %>
+
+    </table>
+                
+    <script>
+        function updateDate() {
+          var selectedDate = document.getElementById('selectedDate').value;
+          // 날짜 변경 시 'WorkStatusFinalPaper' 페이지로 리다이렉트
+          window.location.href = `/WorkStatusFinalPaper?date=${selectedDate}`;
+        }
+
+        // 날씨 자동 업데이트 함수
+        async function autoUpdateWeather() {
+            const newWeather = document.getElementById('weatherInput').value;
+
+            try {
+                const response = await fetch('/update-weather', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ weather: newWeather })
+                });
+
+                if (response.ok) {
+                    console.log('날씨가 성공적으로 업데이트되었습니다.');
+                } else {
+                    console.error('날씨 업데이트에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('날씨 업데이트 중 오류가 발생했습니다:', error);
+            }
+        }
+
+        // 페이지 로드 시 모든 textarea의 높이를 조정
+        window.onload = function() {
+            const textareas = document.querySelectorAll('textarea');
+            textareas.forEach(function(textarea) {
+                autoResize(textarea);
+            });
+        };
+
+         // textarea의 높이를 내용에 맞게 자동으로 조정하는 함수
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';  // 높이를 초기화하여 내용에 맞게 자동으로 조정
+            textarea.style.height = (textarea.scrollHeight) + 'px';  // 내용에 맞는 높이 설정
+        }
+
+        // 작업 내용을 서버로 업데이트하는 함수
+        async function updateWorkDescription(workId, newDescription) {
+            try {
+                const response = await fetch('/update-work-description', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ workId, description: newDescription }),
+                });
+
+                if (response.ok) {
+                    console.log('작업 내용이 성공적으로 업데이트되었습니다.');
+                } else {
+                    console.error('작업 내용 업데이트에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('작업 내용 업데이트 중 오류가 발생했습니다:', error);
+            }
+        }
+
+        const maxRows = <%= maxRows %>;
+        console.log("Max rows to display: ", maxRows);
+    </script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>공사일보 관리 페이지</title>
+    <!-- 동일한 스타일 적용 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 기존 스타일 재사용 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+        }
+
+        input[type="date"], select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"], button {
+            padding: 12px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #005a9e;
+        }
+
+        .company-section {
+            padding: 15px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            background-color: #fff;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h3 {
+            margin-top: 0;
+        }
+
+        .nav-sections {
+            max-width: 800px;
+            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .nav-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 추가 */
+            gap: 10px;
+        }
+
+        .nav-section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center; /* 추가 */
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center; /* 추가 */
+        }
+
+        .nav-buttons button {
+            padding: 10px 20px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            flex: 0 0 auto; /* 수정 */
+        }
+
+        .nav-buttons button:hover {
+            background-color: #005a9e;
+        }
+
+        .reset-button {
+            display: block;
+            margin: 20px auto;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: fit-content;
+        }
+
+        .reset-button:hover {
+            background-color: #c0392b;
+        }
+
+        @media screen and (max-width: 600px) {
+            .nav-buttons button {
+                flex: 1 1 calc(50% - 10px);
+            }
+        }
+
+        /* 중앙 정렬을 위한 컨테이너 스타일 */
+        .container {
+            display: flex;
+            justify-content: center; /* 가로 중앙 정렬 */
+            
+        }
+
+            /* 드롭다운 컨테이너 */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 드롭다운 버튼 */
+        .dropbtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* 드롭다운 콘텐츠 */
+        .dropdown-content {
+            display: none;
+            position: center;
+            background-color: #f9f9f9;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            padding: 12px 16px;
+            z-index: 1;
+            width: 300px; /* 필요에 따라 너비 조정 */
+        }
+
+        /* 드롭다운 버튼 클릭 시 보여질 내용 */
+        .show {
+            display: block;
+        }
+
+        /* 테이블 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        /* 맨 아래로 이동 버튼 스타일 */
+        #scrollToBottomBtn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px; /* 버튼 크기 축소 */
+            background-color: #005a9e;
+            color: white;
+            border: none;
+            border-radius: 50%; /* 버튼을 둥글게 */
+            cursor: pointer;
+            font-size: 14px; /* 폰트 크기 축소 */
+            z-index: 1000;
+            width: 50px;  /* 버튼 너비 */
+            height: 50px; /* 버튼 높이 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #scrollToBottomBtn:hover {
+            background-color: #003d73;
+        }
+
+
+
+    </style>
+    <script>
+        
+
+        // 페이지의 맨 아래로 스크롤하는 함수
+        function scrollToBottom() {
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+    </script>
+</head>
+<body>
+    <h1>공사일보 관리 페이지</h1>
+
+    <form action="/manage" method="get">
+        <label for="date">날짜별로 보기:</label>
+        <input type="date" id="date" name="date" value="<%= selectedDate %>"><br>
+
+        <label for="company">업체별로 보기:</label>
+        <select id="company" name="company">
+            <option value="">전체</option>
+            <% companies.forEach(function(company) { %>
+                <option value="<%= company.id %>"><%= company.company %> (<%= company.trade %>)</option>
+            <% }) %>
+        </select><br>
+
+        <input type="submit" value="조회">
+    </form>
+
+    <div class="company-section">
+        <h3>공사일보 작성되지 않은 업체 목록</h3>
+        <ul>
+            <% notWrittenCompanies.forEach(function(company) { %>
+                <li><%= company.company %> (<%= company.trade %>)</li>
+            <% }) %>
+        </ul>
+    </div>
+
+    <div class="company-section">
+        <h3>공사일보 중복 작성된 업체 목록</h3>
+        <ul>
+            <% 
+                // 중복된 업체를 찾기 위해 업체명을 기준으로 그룹화
+                const companyMap = {};
+                writtenCompanies.forEach(function(work) {
+                    const key = work.companyDetails.company + '-' + work.companyDetails.trade;
+                    if (!companyMap[key]) {
+                        companyMap[key] = [];
+                    }
+                    companyMap[key].push(work);
+                });
+    
+                // 중복된 업체만 필터링
+                const duplicateCompanies = Object.keys(companyMap).filter(key => companyMap[key].length > 1);
+            %>
+            
+            <% duplicateCompanies.forEach(function(key) { %>
+                <li>
+                    <strong>중복된 업체:</strong> <%= companyMap[key][0].companyDetails.company %> (<%= companyMap[key][0].companyDetails.trade %>)<br>
+                    <strong>중복된 작성 횟수:</strong> <%= companyMap[key].length %><br>
+    
+                    <!-- 중복된 각각의 작업 내용 및 수정/삭제 옵션 표시 -->
+                    <ul>
+                        <% companyMap[key].forEach(function(work) { %>
+                            <li id="work-item-<%= work.id %>">
+                                <strong>업체명:</strong> <%= work.companyDetails.company %> (<%= work.companyDetails.trade %>)<br>
+                
+                                <!-- 인원 수정 가능하도록 input 추가 -->
+                                <label for="personnel_count_<%= work.id %>">인원:</label>
+                                <input type="number" id="personnel_count_<%= work.id %>" value="<%= work.personnel_count %>"><br>
+                
+                                <!-- 작업 내용 수정 가능하도록 input 추가 -->
+                                <label for="description_<%= work.id %>">작업 내용:</label>
+                                <input type="text" id="description_<%= work.id %>" value="<%= work.description %>"><br>
+                
+                                <!-- 장비 정보 표시 -->
+                                <% if (work.usedEquipments && work.usedEquipments.length > 0) { %>
+                                    <strong>사용한 장비:</strong><br>
+                                    <ul>
+                                        <% work.usedEquipments.forEach(function(equipment) { %>
+                                            <li><%= equipment.equipmentName %> (<%= equipment.specification %>) - 수량: <%= equipment.work_equipments.equipmentCount %></li>
+                                        <% }) %>
+                                    </ul>
+                                <% } %>
+                
+                                <!-- 수정 및 삭제 버튼 -->
+                                <div style="flex: 1; display: flex; flex-direction: column; align-items: left; gap: 10px; margin-top: 20px;">
+                                    <button onclick="updateWork(<%= work.id %>)" style="width: 30%; padding: 10px; background-color: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer;">수정</button>
+                                    <button onclick="deleteWork(<%= work.id %>)" style="width: 30%; padding: 10px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">삭제</button>
+                                </div>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+    
+    
+
+    <!-- 생략된 부분은 기존 코드와 동일 -->
+
+    <div class="company-section">
+        <h3>공사일보 작성된 업체 목록</h3>
+        <ul>
+            <% writtenCompanies.forEach(function(work) { %>
+                <li id="work-item-<%= work.id %>">
+                    <strong>업체명:</strong> <%= work.companyDetails.company %> (<%= work.companyDetails.trade %>)<br>
+    
+                    <!-- 인원 수정 가능하도록 input 추가 -->
+                    <label for="personnel_count_<%= work.id %>">인원:</label>
+                    <input type="number" id="personnel_count_<%= work.id %>" value="<%= work.personnel_count %>"><br>
+    
+                    <!-- 작업 내용 수정 가능하도록 input 추가 -->
+                    <label for="description_<%= work.id %>">작업 내용:</label>
+                    <input type="text" id="description_<%= work.id %>" value="<%= work.description %>"><br>
+    
+                    <!-- 장비 정보 표시 -->
+                    <% if (work.usedEquipments && work.usedEquipments.length > 0) { %>
+                        <strong>사용한 장비:</strong><br>
+                        <ul>
+                            <% work.usedEquipments.forEach(function(equipment) { %>
+                                <li><%= equipment.equipmentName %> (<%= equipment.specification %>) - 수량: <%= equipment.work_equipments.equipmentCount %></li>
+                            <% }) %>
+                        </ul>
+                    <% } %>
+
+    
+                    <!-- 수정 및 삭제 버튼 -->
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: left; gap: 10px; margin-top: 20px;">
+                        <button onclick="updateWork(<%= work.id %>)" style="width: 30%; padding: 10px; background-color: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer;">수정</button>
+                        <button onclick="deleteWork(<%= work.id %>)" style="width: 30%; padding: 10px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">삭제</button>
+                    </div>
+                </li>
+            <% }) %>
+        </ul>
+    </div>
+
+    <script>
+        // 작업 수정
+        function updateWork(id) {
+            const personnel_count = document.getElementById('personnel_count_' + id).value;
+            const description = document.getElementById('description_' + id).value;
+    
+            fetch(`/update-work/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ personnel_count, description })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('수정되었습니다.');
+                } else {
+                    alert('수정 중 오류가 발생했습니다.');
+                }
+            });
+        }
+    
+        // 작업 삭제
+        function deleteWork(id) {
+            if (!confirm('정말 삭제하시겠습니까?')) return;
+    
+            fetch(`/delete-work/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('work-item-' + id).remove();
+                    alert('삭제되었습니다.');
+                } else {
+                    alert('삭제 중 오류가 발생했습니다.');
+                }
+            });
+        }
+
+        // maxRows 값을 업데이트하는 비동기 함수
+        function updateMaxRows(pageName) {
+            // 해당 폼의 maxRows 값을 가져옴
+            const maxRows = document.getElementById(pageName === 'WorkStatusFinalPaper' ? 'maxRowsWorkStatus' : 'maxRowsManpower').value;
+
+            // 비동기 요청 전송
+            fetch('/update-max-rows', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ pageName, maxRows })
+            })
+            .then(response => {
+                if (response.ok) {
+                    showNotification('완료되었습니다.');
+                } else {
+                    throw new Error('maxRows 업데이트 실패');
+                }
+            })
+            .catch(error => {
+                showNotification('오류가 발생했습니다.', true);
+                console.error('Error:', error);
+            });
+        }
+
+        // 알림 메시지를 표시하는 함수
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            notification.innerText = message;
+            notification.style.backgroundColor = isError ? '#e74c3c' : '#4CAF50'; // 성공 시 녹색, 오류 시 빨간색
+            notification.style.display = 'block';
+
+            // 3초 후 알림을 숨김
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+
+    </script>
+
+
+    <!-- 네비게이션 섹션 -->
+    <div class="nav-sections">
+        <!-- 입력 관련 버튼 그룹 -->
+        <div class="nav-section">
+            <div class="nav-section-title">입력 페이지</div>
+            <div class="nav-buttons" style="width: 300px;">
+                <button onclick="location.href='/'">공사일보 입력</button>
+                <button onclick="location.href='/input-materials'">자재현황 입력</button>
+                <button onclick="location.href='/view-materials'">자재입력 수정</button>
+            </div>
+        </div>
+
+        <!-- 관리 관련 버튼 그룹 -->
+        <div class="nav-section">
+            <div class="nav-section-title">관리 페이지</div>
+            <div class="nav-buttons" style="width: 300px;">
+                <button onclick="location.href='/create-company'">업체명 관리</button>
+                <button onclick="location.href='/manage-materials'">자재 관리</button>
+                <button onclick="location.href='/manage-equipments'">장비 관리</button>
+            </div>
+        </div>
+
+        <!-- 최종 출력물 그룹 -->
+        <div class="nav-section">
+            <div class="nav-section-title">출력 페이지</div>
+            <div class="nav-buttons" style="width: 300px;">
+                <button onclick="location.href='/ManpowerFinalPaper'">출력 현황</button>
+                <button onclick="location.href='/WorkStatusFinalPaper'">작업 현황</button>
+                <button onclick="location.href='/WorkStatusForSmaty'">스마티 입력용</button>
+            </div>
+        </div>
+
+        <!-- 최종 출력물 관리 -->
+        <div class="nav-section">
+            <div class="nav-buttons" style="width: 300px;">
+                <form id="max-rows-form-manpower">
+                    <input type="hidden" name="pageName" value="ManpowerFinalPaper">
+                    <label for="maxRowsManpower">[출력현황] 최대 행 수:</label>
+                    <input type="number" id="maxRowsManpower" name="maxRows" value="<%= maxRowsManpower %>">
+                    <button type="button" onclick="updateMaxRows('ManpowerFinalPaper')">변경</button>
+
+                    <input type="hidden" name="pageName" value="WorkStatusFinalPaper">
+                    <label for="maxRowsWorkStatus">[작업현황] 최대 행 수:</label>
+                    <input type="number" id="maxRowsWorkStatus" name="maxRows" value="<%= maxRowsWorkStatus %>">
+                    <button type="button" onclick="updateMaxRows('WorkStatusFinalPaper')">변경</button>
+                    
+                </form>
+
+                <button onclick="location.href='/manage-company-order'">[출력현황] 업체 순서 관리</button> <!-- 추가된 버튼 -->
+
+                <!-- 알림 메시지를 표시할 div -->
+                <div id="notification" style="display: none; background-color: #4CAF50; color: white; padding: 15px; position: fixed; top: 0; width: 100%; text-align: center; z-index: 1000;">
+                    완료되었습니다.
+                </div>
+            </div>
+        </div>
+
+        <!-- 데이터베이스 다운로드 그룹 -->
+        <div class="nav-section">
+            <div class="nav-section-title">DB백업다운로드</div>
+            <div class="nav-buttons" style="width: 300px;">
+                <button onclick="location.href='/download-sqlite'">SQLITE 다운로드</button>
+            </div>
+        </div>
+
+        
+
+        
+        <!-- 현장명 관리 섹션 -->
+        <div class="container">
+            <div>
+              <!-- 현장명 관리 섹션 -->
+              <div class="nav-section-title">현장명 관리</div>
+        
+              <!-- 현장명 관리 드롭다운 -->
+              <div class="dropdown">
+                <button class="dropbtn" onclick="toggleDropdown()">현장명 관리</button>
+                <div id="dropdownContent" class="dropdown-content">
+                  <!-- 현장명 추가 폼 -->
+                  <form id="addSiteForm" action="/add-site" method="POST">
+                    <input type="text" name="siteName" id="siteNameInput" placeholder="현장명을 입력하세요" required>
+                    <button type="submit">현장명 추가</button>
+                  </form>
+        
+                  <!-- 현장명 목록 -->
+                  <h2>현장명 목록</h2>
+                  <% if (sites.length > 0) { %>
+                    <% sites.forEach(function(site) { %>
+                      <div>
+                        <form class="updateSiteForm" action="/update-site/<%= site.id %>" method="POST">
+                          <input type="text" name="siteName" value="<%= site.siteName %>" required>
+                          <button type="submit">수정</button>
+                        </form>
+                        <form class="deleteSiteForm" action="/delete-site/<%= site.id %>" method="POST" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                          <button type="submit" style="background-color: #e74c3c;">삭제</button>
+                        </form>
+                      </div>
+                    <% }); %>
+                  <% } else { %>
+                    <p>등록된 현장명이 없습니다.</p>
+                  <% } %>
+        
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <!-- JavaScript로 드롭다운 토글 -->
+        <script>
+            function toggleDropdown() {
+            var dropdownContent = document.getElementById("dropdownContent");
+            dropdownContent.classList.toggle("show");
+            }
+        </script>
+
+        <!-- 비동기 추가 처리 -->
+        <script>
+            $(document).ready(function() {
+            // 현장명 추가 폼 처리
+            $('#addSiteForm').on('submit', function(e) {
+                e.preventDefault(); // 기본 폼 제출을 막음
+
+                const siteName = $('#siteNameInput').val();
+
+                // AJAX로 현장명 추가 요청
+                $.post('/add-site', { siteName }, function(newSite) {
+                // 성공적으로 추가되면 테이블에 새 행 추가
+                $('#siteTable').append(`
+                    <tr data-id="${newSite.id}">
+                    <td>${newSite.id}</td>
+                    <td>
+                        <form class="updateSiteForm" action="/update-site/${newSite.id}" method="POST">
+                        <input type="text" name="siteName" value="${newSite.siteName}" required>
+                        <button type="submit">수정</button>
+                        </form>
+                        <form class="deleteSiteForm" action="/delete-site/${newSite.id}" method="POST" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit">삭제</button>
+                        </form>
+                    </td>
+                    </tr>
+                `);
+
+                // 입력 필드 초기화
+                $('#siteNameInput').val('');
+                });
+                }
+            }
+
+
+        </script>
+
+
+
+    </div>
+
+    <!-- 맨 아래로 이동 버튼 -->
+    <button id="scrollToBottomBtn" onclick="scrollToBottom()">⬇</button>
+
+</body>
+</html>

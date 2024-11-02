@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>자재 관리</title>
+  <!-- 스타일 및 스크립트 추가 -->
+</head>
+<body>
+  <h1>자재 관리</h1>
+
+  <form action="/add-material" method="post">
+    <label for="materialName">자재명:</label>
+    <input type="text" id="materialName" name="materialName" required>
+
+    <label for="specification">규격:</label>
+    <input type="text" id="specification" name="specification" required>
+
+    <label for="unit">단위:</label>
+    <input type="text" id="unit" name="unit" required>
+
+    <input type="submit" value="추가">
+  </form>
+
+  <h2>자재 목록</h2>
+  <table>
+    <tr>
+      <th>자재명</th>
+      <th>규격</th>
+      <th>단위</th>
+      <th>액션</th>
+    </tr>
+    <% materials.forEach(function(material) { %>
+      <tr>
+        <td><%= material.materialName %></td>
+        <td><%= material.specification %></td>
+        <td><%= material.unit %></td>
+        <td>
+          <form action="/update-material/<%= material.id %>" method="post">
+            <!-- 수정 폼 -->
+            <input type="submit" value="수정">
+          </form>
+          <form action="/delete-material/<%= material.id %>" method="post">
+            <!-- 삭제 폼 -->
+            <input type="submit" value="삭제">
+          </form>
+        </td>
+      </tr>
+    <% }) %>
+  </table>
+</body>
+</html>

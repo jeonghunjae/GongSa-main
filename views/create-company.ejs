@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>업체명 관리</title>
+    <!-- 동일한 스타일 적용 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* 기존 스타일 재사용 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .submit-btn:hover {
+            background-color: #005a9e;
+        }
+
+        .company-list {
+            padding: 15px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .company-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .company-item span {
+            cursor: pointer;
+        }
+
+        .company-item-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .edit-btn, .delete-btn {
+            background-color: #0078d4;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            background-color: #005a9e;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .edit-company-input {
+            display: none;
+            width: 100%;
+            margin-right: 10px;
+        }
+
+    </style>
+    <script>
+        function toggleEdit(companyId) {
+            var companyText = document.getElementById('company-text-' + companyId);
+            var companyInput = document.getElementById('company-input-' + companyId);
+            var tradeInput = document.getElementById('trade-input-' + companyId);
+            var editButton = document.getElementById('edit-btn-' + companyId);
+
+            if (companyInput.style.display === 'none' || companyInput.style.display === '') {
+                companyText.style.display = 'none';  // 기존 텍스트 숨기기
+                companyInput.style.display = 'inline-block';  // 업체명 입력 필드 보이기
+                tradeInput.style.display = 'inline-block';   // 공종명 입력 필드 보이기
+                editButton.style.display = 'inline-block';  // 수정 버튼 보이기
+                companyInput.focus();  // 입력 필드에 포커스
+            } else {
+                companyText.style.display = 'inline';  // 기존 텍스트 보이기
+                companyInput.style.display = 'none';  // 업체명 입력 필드 숨기기
+                tradeInput.style.display = 'none';   // 공종명 입력 필드 숨기기
+                editButton.style.display = 'none';  // 수정 버튼 숨기기
+            }
+        }
+
+                function updateCompletionStatus(companyId, isCompleted) {
+            fetch(`/update-company-status/${companyId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isCompleted: isCompleted })
+            })
+            .then(response => response.json())
+            .then(data => {
+            if (data.success) {
+                alert('작업 완료 상태가 업데이트되었습니다.');
+            } else {
+                alert('업데이트 중 오류가 발생했습니다.');
+            }
+            })
+            .catch(error => {
+            console.error('Error updating completion status:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>업체명 관리</h1>
+    <form action="/create-company" method="post">
+        <div class="form-section">
+            <label for="company">새로운 업체명:</label>
+            <input type="text" id="company" name="company" required>
+
+            <label for="trade">공종명:</label>
+            <input type="text" id="trade" name="trade" required>
+        </div>
+        <button type="submit" class="submit-btn">
+            📝 제출하기
+        </button>
+    </form>
+
+    <h3 style="text-align: center;">등록된 업체 목록 (업체명 - 공종명)</h3>
+    <div class="company-list">
+        <% companies.forEach(function(company) { %>
+            <div class="company-item">
+                <!-- 업체명과 공종명 텍스트 -->
+                <span id="company-text-<%= company.id %>" onclick="toggleEdit(<%= company.id %>)">
+                    <%= company.company %> (<%= company.trade %>)
+                </span>
+
+                <!-- 업체 수정 및 삭제 버튼 -->
+                <div class="company-item-buttons">
+                    <form id="edit-form-<%= company.id %>" action="/update-company/<%= company.id %>" method="post" style="display: inline;">
+                        <input type="text" id="company-input-<%= company.id %>" name="company" value="<%= company.company %>" class="edit-company-input">
+                        <input type="text" id="trade-input-<%= company.id %>" name="trade" value="<%= company.trade %>" class="edit-company-input">
+
+                        <!-- 완료 여부 체크박스 추가 -->
+                        <label> 작업완료
+                            <input 
+                                type="checkbox" 
+                                id="isCompleted-<%= company.id %>" 
+                                <%= company.isCompleted ? 'checked' : '' %> 
+                                onchange="updateCompletionStatus(<%= company.id %>, this.checked)">
+                        </label>
+
+                        <button type="submit" id="edit-btn-<%= company.id %>" class="edit-btn" style="display:none;">수정</button>
+                    </form>
+                    <form action="/delete-company/<%= company.id %>" method="post" style="display: inline;">
+                        <button type="submit" class="delete-btn" onclick="return confirm('정말로 삭제하시겠습니까?');">삭제</button>
+                    </form>
+                </div>
+                
+            </div>
+        <% }) %>
+    </div>
+</body>
+</html>

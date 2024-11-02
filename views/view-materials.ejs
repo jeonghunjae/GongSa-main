@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>자재 조회 및 수정</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        input[type="date"], input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+    <script>
+        async function deleteMaterial(materialId, date) {
+            if (!confirm('정말로 이 자재를 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/delete-material/${materialId}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert('자재가 성공적으로 삭제되었습니다.');
+                    window.location.href = `/view-materials?date=${date}`;
+                } else {
+                    alert('자재 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('Error deleting material:', error);
+                alert('자재 삭제 중 오류가 발생했습니다.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>자재 조회 및 수정</h1>
+
+    <form id="searchForm" action="/view-materials" method="get">
+        <label for="date">조회할 날짜 선택:</label>
+        <input type="date" id="date" name="date" required>
+        <button type="submit">조회</button>
+    </form>
+
+    <% if (materials && materials.length > 0) { %>
+        <form id="updateForm" action="/update-materials" method="post">
+            <table>
+                <thead>
+                    <tr>
+                        <th>자재명</th>
+                        <th>규격</th>
+                        <th>수량</th>
+                        <th>삭제</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% materials.forEach(material => { %>
+                    <tr>
+                        <td><%= material.materialDetails.materialName %></td>
+                        <td><%= material.materialDetails.specification %></td>
+                        <td>
+                            <input type="number" name="quantities[]" value="<%= material.quantity %>" step="0.01" required>
+                            <input type="hidden" name="materialIds[]" value="<%= material.id %>">
+                        </td>
+                        <td>
+                            <button type="button" class="delete-btn" onclick="deleteMaterial(<%= material.id %>, '<%= material.date %>')">삭제</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <button type="submit">수정하기</button>
+        </form>
+    <% } else if (materials) { %>
+        <p>선택한 날짜에 해당하는 자재가 없습니다.</p>
+    <% } %>
+</body>
+</html>

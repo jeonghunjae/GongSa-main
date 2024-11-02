@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>업체 순서 관리</title>
+  <style>
+    /* 필요한 스타일 추가 */
+    .company-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .company-item {
+      padding: 10px;
+      margin: 5px 0;
+      background-color: #f2f2f2;
+      cursor: move;
+    }
+
+    .save-button {
+      padding: 10px 20px;
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>업체 순서 관리</h1>
+  <h2>수정 완료 후 페이지 하단 버튼을 눌러주시고 기다려주세요</h2>
+  <hr>
+  <ul id="companyList" class="company-list">
+    <% companies.forEach(function(company) { %>
+      <li class="company-item" data-id="<%= company.id %>">
+        <%= company.company %> (<%= company.trade %>)
+      </li>
+    <% }); %>
+  </ul>
+  <button class="save-button" onclick="saveOrder()">순서 저장</button>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- jQuery UI 라이브러리 추가 -->
+  <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+  <script>
+    $(function() {
+      $("#companyList").sortable();
+      $("#companyList").disableSelection();
+    });
+
+    function saveOrder() {
+      const companyOrders = [];
+      $("#companyList .company-item").each(function(index) {
+        companyOrders.push({
+          id: $(this).data('id'),
+          order: index + 1 // 1부터 시작하도록
+        });
+      });
+
+      $.ajax({
+        url: '/update-company-order',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ companyOrders }),
+        success: function(response) {
+          alert(response.message);
+        },
+        error: function(err) {
+          alert('업데이트 중 오류가 발생했습니다.');
+          console.error(err);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

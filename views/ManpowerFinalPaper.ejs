@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>공사일보 - 인력 현황</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: calc(183px * 15);
+            table-layout: fixed;
+        }
+        th, td {
+            border: 1px solid black; /* 표의 모든 셀에 border 추가 */
+            width: 183;
+            height: 43px;
+            text-align: center;
+            font-size: 25px;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h2 {
+            display: flex;
+            justify-content: center; /* 가로 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            text-align: center;
+            width: calc(183px * 15);
+            height: 170px;
+            border: 1px solid black; /* 제목에 border 추가 */
+            padding: 0;
+            margin: 0;
+            font-size: 60px;
+            box-sizing: border-box; /* padding과 border를 폭에 포함 */
+        }
+
+        /* 날짜 선택 스타일을 일반 텍스트처럼 */
+        input[type="date"] {
+            font-size: 30px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <table>
+        <tr>
+            <th colspan="11" style="padding-top: 20px; border-bottom: none;text-align: center; padding-left: 20px;">  </th> 
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;">작성자</th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;">팀 장</th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;">소 장</th>
+        </tr>
+        <tr>
+            <th colspan="11" style="padding-bottom: 50px; border-top: none;text-align: center; padding-left: 600px;">
+                <span style="font-size: 60px;">공&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;사&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;일&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;보</span>
+            </th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;"></th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;"></th>
+            <th colspan="1" style="text-align: center; padding-left: 20px; border: 1px solid black;"></th>
+        </tr>
+    </table>
+    
+    <table>
+        <!-- 공사명, 날짜, 날씨 -->
+        <tr>
+            <td colspan="12">공사명: <%= siteName %></td>
+            <td colspan="3">
+                날짜:
+                <input type="date" id="selectedDate" value="<%= workDate %>" onchange="updateDate()">
+            </td> 
+        </tr>
+        <tr>
+            <td colspan="2" style="border: 1px solid black;">
+                날씨: 
+                <input 
+                    type="text" 
+                    id="weatherInput" 
+                    value="<%= weather %>" 
+                    onblur="autoUpdateWeather()" 
+                    style="border: none; width: 150px; font-size: 25px;" 
+                />
+            </td>
+            <td colspan="2" style="border-right: none;">최저 기온: <%= lowTemp %></td>
+            <td colspan="11" style="text-align:left; padding-left: 20px; border-left: none;">최고 기온: <%= highTemp %></td>
+        </tr>
+
+        <!-- 자재, 장비 및 업체 현황 헤더 -->
+        <tr>
+            <th colspan="5" style="background-color: #cececee8;">자재 현황</th>
+            <th colspan="5" style="background-color: #cececee8;">장비 현황</th>
+            <th colspan="5" style="background-color: #cececee8;">업체 및 출력 현황</th>
+        </tr>
+
+        <!-- 자재, 장비, 업체 정보 헤더 -->
+        <tr>
+            <!-- 자재 정보 헤더 -->
+            <th style="background-color: #cececee8;">자재명</th>
+            <th style="background-color: #cececee8;">규격</th>
+            <th style="background-color: #cececee8;">단위</th>
+            <th style="background-color: #cececee8;">전일 반입량</th>
+            <th style="background-color: #cececee8;">반입 누계</th>
+
+            <!-- 장비 정보 헤더 -->
+            <th style="background-color: #cececee8;">장비명</th>
+            <th style="background-color: #cececee8;">규격</th>
+            <th style="background-color: #cececee8;">전일 사용량</th>
+            <th style="background-color: #cececee8;">금일 사용량</th>
+            <th style="background-color: #cececee8;">누적 사용량</th>
+
+            <!-- 업체 및 출력 정보 헤더 -->
+            <th style="background-color: #cececee8;">업체명</th>
+            <th style="background-color: #cececee8;">공종명</th>
+            <th style="background-color: #cececee8;">전일 출력</th>
+            <th style="background-color: #cececee8;">금일 출력</th>
+            <th style="background-color: #cececee8;">출력 누계</th>
+        </tr>
+
+        <!-- 자재, 장비, 업체 정보 데이터 매핑 -->
+        <% const totalRows = Math.max(materials.length, equipments.length, workDetails.length); %>
+        <% for (let i = 0; i < totalRows; i++) { %>
+            <tr>
+                <!-- 자재 정보 -->
+                <% if (i < materials.length) { %>
+                    <td><%= materials[i].materialDetails.materialName %></td>
+                    <td><%= materials[i].materialDetails.specification %></td>
+                    <td><%= materials[i].materialDetails.unit %></td>
+                    <td><%= materials[i].currentQuantity ? materials[i].currentQuantity : '-' %></td> <!-- 전일 반입량 -->
+                    <td><%= materials[i].totalQuantity.toLocaleString() %></td> <!-- 반입 누계 -->
+                <% } else { %>
+                    <td></td><td></td><td></td><td></td><td></td> <!-- 빈칸 유지 -->
+                <% } %>
+
+                <!-- 장비 정보 -->
+                <% if (i < equipments.length) { %>
+                    <td><%= equipments[i].equipment.equipmentName %></td>
+                    <td><%= equipments[i].equipment.specification %></td>
+                    <td><%= equipments[i].previousUsage ? equipments[i].previousUsage : '-' %></td> <!-- 전일 사용량 -->
+                    <td><%= equipments[i].currentUsage ? equipments[i].currentUsage : '-' %></td> <!-- 금일 사용량 -->
+                    <td><%= equipments[i].totalUsage ? equipments[i].totalUsage.toLocaleString() : '-' %></td> <!-- 누적 사용량 -->
+                <% } else { %>
+                    <td></td><td></td><td></td><td></td><td></td> <!-- 빈칸 유지 -->
+                <% } %>
+
+                <!-- 업체 정보 -->
+                <% if (i < workDetails.length) { %>
+                    <td><%= workDetails[i].companyDetails.company %></td>
+                    <td><%= workDetails[i].companyDetails.trade %></td>
+                    <td><%= workDetails[i].previousPersonnel ? workDetails[i].previousPersonnel : '-' %></td> <!-- 전일 출력 -->
+                    <td><%= workDetails[i].calculatePersonnelForSelectedDate  ? workDetails[i].calculatePersonnelForSelectedDate : '-' %></td> <!-- 금일 출력 -->
+                    <td><%= workDetails[i].totalPersonnel ? workDetails[i].totalPersonnel.toLocaleString() : '-' %></td> <!-- 출력 누계-->
+                <% } else { %>
+                    <td></td><td></td><td></td><td></td><td></td> <!-- 빈칸 유지 -->
+                <% } %>
+            </tr>
+        <% } %>
+
+        <!-- 빈칸 채우기 -->
+        <% const emptyRows = maxRows - totalRows; %> <!-- 빈칸 줄의 수를 계산하여 빈칸 추가 -->
+        <% for (let i = 0; i < emptyRows; i++) { %>
+        <tr>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+            <td></td><td></td><td></td><td></td><td></td>
+        </tr>
+        <% } %>
+
+        <!-- 소계 및 합계 추가 -->
+        <tr>
+            <td colspan="10">-</td>
+            <td colspan="2" style="font-weight:bold; background-color: #cececee8;">소 계</td>
+            <td id="totalPreviousDay"></td> <!-- 전일 출력 합계 -->
+            <td id="totalToday"></td> <!-- 금일 출력 합계 -->
+            <td id="totalCumulative"></td> <!-- 누적 합계 -->
+        </tr>
+        
+    </table>
+
+    
+
+
+    <script>
+        function updateDate() {
+            var selectedDate = document.getElementById('selectedDate').value;
+            // AJAX로 서버에 날짜를 보내 데이터 갱신 요청
+            window.location.href = `/ManpowerFinalPaper?date=${selectedDate}`;
+        }
+
+        // 날씨 자동 업데이트 함수
+        async function autoUpdateWeather() {
+            const newWeather = document.getElementById('weatherInput').value;
+
+            try {
+                const response = await fetch('/update-weather', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ weather: newWeather })
+                });
+
+                if (response.ok) {
+                    console.log('날씨가 성공적으로 업데이트되었습니다.');
+                } else {
+                    console.error('날씨 업데이트에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('날씨 업데이트 중 오류가 발생했습니다:', error);
+            }
+        }
+
+        // 테이블에서 personnel_count를 계산하는 함수
+        function calculateTotals() {
+            // 전일, 금일, 누적 출력 합계를 저장할 변수
+            let totalPreviousDay = 0;
+            let totalToday = 0;
+            let totalCumulative = 0;
+
+            // 모든 테이블 행을 순회하면서 전일 출력, 금일 출력, 누적 합계 계산
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach((row) => {
+                // 각 행의 출력 데이터 읽기
+                const previousPersonnel = row.querySelector('td:nth-child(13)');
+                const todayPersonnel = row.querySelector('td:nth-child(14)');
+                const cumulativePersonnel = row.querySelector('td:nth-child(15)');
+
+                // 전일 출력
+                if (previousPersonnel && previousPersonnel.textContent !== '-') {
+                    totalPreviousDay += parseInt(previousPersonnel.textContent.replace(/,/g, ''), 10) || 0;
+                }
+
+                // 금일 출력
+                if (todayPersonnel && todayPersonnel.textContent !== '-') {
+                    totalToday += parseInt(todayPersonnel.textContent.replace(/,/g, ''), 10) || 0;
+                }
+
+                // 누적 출력
+                if (cumulativePersonnel && cumulativePersonnel.textContent !== '-') {
+                    totalCumulative += parseInt(cumulativePersonnel.textContent.replace(/,/g, ''), 10) || 0;
+                }
+            });
+
+            // 계산된 값을 소계 및 합계 셀에 표시
+            document.getElementById('totalPreviousDay').textContent = totalPreviousDay.toLocaleString();
+            document.getElementById('totalToday').textContent = totalToday.toLocaleString();
+            document.getElementById('totalCumulative').textContent = totalCumulative.toLocaleString();
+        }
+
+        // 페이지가 로드될 때 합계를 계산하는 함수 호출
+        window.onload = calculateTotals;
+
+        const maxRows = <%= maxRows %>;
+        console.log("Max rows to display: ", maxRows);
+
+
+    </script>
+</body>
+</html>

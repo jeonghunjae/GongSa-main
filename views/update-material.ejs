@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>자재 수정</title>
+    <!-- 동일한 스타일 적용 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 동일한 스타일 시트 내용 -->
+    <style>
+        /* materials.ejs와 동일한 스타일 */
+        /* 필요한 스타일만 포함하였습니다 */
+    </style>
+</head>
+<body>
+    <div class="title-background">
+        <h1>자재 수정</h1>
+    </div>
+
+    <form action="/update-material/<%= material.id %>" method="post">
+        <div class="form-group">
+            <label for="materialName">자재명:</label>
+            <input type="text" id="materialName" name="materialName" value="<%= material.materialName %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="specification">규격:</label>
+            <input type="text" id="specification" name="specification" value="<%= material.specification %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="unit">단위:</label>
+            <input type="text" id="unit" name="unit" value="<%= material.unit %>" required>
+        </div>
+
+        <input type="submit" value="수정 완료">
+    </form>
+</body>
+</html>
